@@ -64,12 +64,13 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                FileOutputStream outStream = null;
+                FileOutputStream fos = null;
+                String filename = "prueba.jpg";
                 try {
-                    outStream = new FileOutputStream(String.format("/sdcard/%d.jpg", System.currentTimeMillis()));
 
-                    outStream.write(data);
-                    outStream.close();
+                    fos = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                    fos.write(data);
+                    fos.close();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -77,7 +78,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
                 } finally {
                 }
 
-                Toast.makeText(getActivity().getApplicationContext(), "Picture Saved", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Picture Saved with name"+filename, Toast.LENGTH_LONG).show();
                 refreshCamera();
             }
         };
