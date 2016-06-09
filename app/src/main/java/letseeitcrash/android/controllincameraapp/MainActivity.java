@@ -5,10 +5,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements CameraFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements CameraFragment.OnCameraFragmentInteractionListener, PreviewFragment.OnPreviewFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +19,9 @@ public class MainActivity extends AppCompatActivity implements CameraFragment.On
         setSupportActionBar(toolbar);
 
         /*inicia fragment*/
-        CameraFragment fragment = CameraFragment.newInstance();
+        CameraFragment cam_fragment = CameraFragment.newInstance();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction(); //getFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, fragment);
+        transaction.replace(R.id.container, cam_fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
@@ -53,7 +54,18 @@ public class MainActivity extends AppCompatActivity implements CameraFragment.On
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onCameraFragmentInteraction(Uri uri) {
+        /*preview*/
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        PreviewFragment prev_fragment = PreviewFragment.newInstance(uri.toString());
+        //transaction = getSupportFragmentManager().beginTransaction(); //getFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, prev_fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    @Override
+    public void onPreviewFragmentInteraction(Uri uri) {
         //
     }
 }
