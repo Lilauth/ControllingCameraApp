@@ -1,6 +1,7 @@
 package letseeitcrash.android.controllincameraapp;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +38,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
 
-    Camera.PictureCallback jpegCallback;
+    Camera.PictureCallback
+            jpegCallback;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -67,6 +70,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
             public void onPictureTaken(byte[] data, Camera camera) {
                 FileOutputStream fos = null;
                 String filename;
+                String appDirectory;
                 try {
 
                     /*FileOutputStream outStream;
@@ -77,14 +81,20 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
                     outStream.close();*/
 
                     //intenta guardar en el espacio de la aplicación
-                    filename = String.format("%d.jpg", System.currentTimeMillis());
-                    fos = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
+                    ContextWrapper cw = new ContextWrapper(getContext());
+                    File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+                    filename = /*directory.getAbsolutePath().toString()+'/'+*/String.format("%d.jpg", System.currentTimeMillis());
+                    File file = new File(directory,filename);
+                    Log.i("info", "file "+file.getAbsolutePath());
+                    fos =  new FileOutputStream(file);
+                    Log.i("info", "fos creado ");
+                    //getContext().openFileOutput(filename, Context.MODE_PRIVATE);
                     fos.write(data);
                     fos.close();
                     Log.i("info", "file saved "+filename);
 
                     if (mListener != null) {
-                        mListener.onCameraFragmentInteraction(Uri.parse(filename));
+                        mListener.onCameraFragmentInteraction(Uri.fromFile(file));
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

@@ -14,7 +14,7 @@ import android.widget.ImageView;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link PreviewFragment.OnFragmentInteractionListener} interface
+ * {@link PreviewFragment.OnPreviewFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link PreviewFragment#newInstance} factory method to
  * create an instance of this fragment.
