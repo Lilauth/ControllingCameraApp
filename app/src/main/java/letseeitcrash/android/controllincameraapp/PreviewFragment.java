@@ -1,14 +1,19 @@
 package letseeitcrash.android.controllincameraapp;
 
 import android.content.Context;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import java.io.IOException;
 
 
 /**
@@ -66,11 +71,43 @@ public class PreviewFragment extends Fragment {
         View root_view = inflater.inflate(R.layout.fragment_preview, container, false);
 
         i_view = (ImageView) root_view.findViewById(R.id.imageView);
-
-        /*Uri fileURI = Uri.parse(getContext().getFilesDir().toString()+"/prueba.jpg");*/
         Uri fileUri = Uri.parse(mParam1);
+        Log.i("mParam1",mParam1);
+        Log.i("filename",fileUri.toString());
+       /** Matrix matrix = new Matrix();
+        i_view.setScaleType(ImageView.ScaleType.MATRIX);   //required
+        //determine rotation
+        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }*/
+        //
+       /** matrix.postRotate((float) degrees, 0, 0);
+        i_view.setImageMatrix(matrix);*/
+
         try{
-          i_view.setImageURI(fileUri);}
+            //load image on image view
+            i_view.setImageURI(fileUri);
+            //try to know orientation of image
+            ExifInterface exif = new ExifInterface(fileUri.toString());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            Log.e("picture orientation", String.valueOf(orientation));
+        }
+        catch(IOException e1){
+            Log.e("error IO",e1.getMessage());
+        }
         catch(Exception e){
               Log.e("error",e.getMessage());
         }

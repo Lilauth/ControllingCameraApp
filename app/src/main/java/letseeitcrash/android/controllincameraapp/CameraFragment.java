@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,16 +83,16 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
                     //intenta guardar en el espacio de la aplicación
                     ContextWrapper cw = new ContextWrapper(getContext());
-                    File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-                    filename = /*directory.getAbsolutePath().toString()+'/'+*/String.format("%d.jpg", System.currentTimeMillis());
-                    File file = new File(directory,filename);
-                    Log.i("info", "file "+file.getAbsolutePath());
+
+                    File privateAppDirectory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+                    File publicImageDirectory = new File(String.format("/sdcard/"));
+
+                    filename = String.format("%d.jpeg", System.currentTimeMillis());
+                    File file = new File(/*privateAppDirectory*/publicImageDirectory,filename);
                     fos =  new FileOutputStream(file);
-                    Log.i("info", "fos creado ");
                     //getContext().openFileOutput(filename, Context.MODE_PRIVATE);
                     fos.write(data);
                     fos.close();
-                    Log.i("info", "file saved "+filename);
 
                     if (mListener != null) {
                         mListener.onCameraFragmentInteraction(Uri.fromFile(file));
@@ -195,6 +196,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     private void setCameraDisplayOrientation(int cameraId, android.hardware.Camera camera) {
         android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
+        //for debug only
+        Camera.Parameters param;
+        param = camera.getParameters();
+        Log.e("param", param.flatten());
+        //end of manual debug
         int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
         int degrees = 0;
         switch (rotation) {
