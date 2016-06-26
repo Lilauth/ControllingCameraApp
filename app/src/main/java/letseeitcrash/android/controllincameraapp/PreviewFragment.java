@@ -72,30 +72,6 @@ public class PreviewFragment extends Fragment {
 
         i_view = (ImageView) root_view.findViewById(R.id.imageView);
         Uri fileUri = Uri.parse(mParam1);
-        Log.i("mParam1",mParam1);
-        Log.i("filename",fileUri.toString());
-       /** Matrix matrix = new Matrix();
-        i_view.setScaleType(ImageView.ScaleType.MATRIX);   //required
-        //determine rotation
-        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }*/
-        //
-       /** matrix.postRotate((float) degrees, 0, 0);
-        i_view.setImageMatrix(matrix);*/
 
         try{
             //load image on image view

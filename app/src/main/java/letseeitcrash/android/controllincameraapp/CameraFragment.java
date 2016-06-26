@@ -2,7 +2,11 @@ package letseeitcrash.android.controllincameraapp;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,8 +43,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
 
-    Camera.PictureCallback
-            jpegCallback;
+    Camera.PictureCallback jpegCallback;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -69,30 +72,37 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                FileOutputStream fos = null;
-                String filename;
-                String appDirectory;
+                // fos = null;
+                //String filename;
+                //String appDirectory;
                 try {
-
-                    /*FileOutputStream outStream;
-                    filename = String.format("/sdcard/%d.jpg", System.currentTimeMillis());*/
-                    //outStream = new FileOutputStream(/*String.format("/sdcard/%d.jpg", System.currentTimeMillis())*/filename);
-                    /*Log.e("file name: ", filename);
-                    outStream.write(data);
-                    outStream.close();*/
-
                     //intenta guardar en el espacio de la aplicación
-                    ContextWrapper cw = new ContextWrapper(getContext());
+                  /*  ContextWrapper cw = new ContextWrapper(getContext());
+                    File privateAppDirectory = cw.getDir("imageDir", Context.MODE_PRIVATE);*/
 
-                    File privateAppDirectory = cw.getDir("imageDir", Context.MODE_PRIVATE);
                     File publicImageDirectory = new File(String.format("/sdcard/"));
-
-                    filename = String.format("%d.jpeg", System.currentTimeMillis());
+                    String filename = String.format("%d.jpeg", System.currentTimeMillis());
                     File file = new File(/*privateAppDirectory*/publicImageDirectory,filename);
-                    fos =  new FileOutputStream(file);
-                    //getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-                    fos.write(data);
+
+                    Bitmap realImage = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    ExifInterface exif=new ExifInterface(file.toString());
+
+                    if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
+                        realImage= rotate(realImage, 90);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
+                        realImage= rotate(realImage, 270);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")){
+                        realImage= rotate(realImage, 180);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0")){
+                        realImage= rotate(realImage, 90);
+                    }
+
+                    FileOutputStream fos =  new FileOutputStream(file);
+                    boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+                  //  fos.write(data);
                     fos.close();
+                    Log.e("Info", bo + "");
 
                     if (mListener != null) {
                         mListener.onCameraFragmentInteraction(Uri.fromFile(file));
@@ -103,13 +113,21 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e("error", "IO exception");
-                } finally {
                 }
-
-             //   Toast.makeText(getActivity().getApplicationContext(), "Picture Saved with name", Toast.LENGTH_LONG).show();
                 refreshCamera();
             }
         };
+    }
+
+    public static Bitmap rotate(Bitmap bitmap, int degree) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix mtx = new Matrix();
+        //       mtx.postRotate(degree);
+        mtx.setRotate(degree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
 
@@ -162,6 +180,9 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             camera = Camera.open();
+            setCameraDisplayOrientation(0, camera);
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
         }
 
         catch (RuntimeException e) {
@@ -169,16 +190,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
             return;
         }
 
-        try {
-            setCameraDisplayOrientation(0, camera);
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
-        }
-
-        catch (Exception e) {
-            System.err.println(e);
+        catch (IOException e1){
+            System.err.println(e1);
             return;
         }
+        
     }
 
     @Override
